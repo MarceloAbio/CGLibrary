@@ -50,7 +50,7 @@ void dimensionaJanela(int w, int h)
    É bastante prático implementar uma função específica para tanto(como a função
    a seguir). As imagens aqui estão no formato RAW (sem abeçalho, sem compressão
    e de um byte por componente)                                               */
-   /*leimagem(image, "books_texture.jpg");
+   /*leimagem(image, "books_texture.");
 
    //Especifica parâmetros da textura (ampliação, redução, repetição)
    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -135,17 +135,17 @@ void porta()
     glVertex3f(2.0,0.0,0.0);
 
     glColor3f(1.0,1.0,1.0);
-    glNormal3f(1.0,0.0,0.1);
-    glVertex3f(0.7,0.9,0.1);
-    glVertex3f(0.7,1.1,0.1);
-    glVertex3f(0.9,1.1,0.1);
-    glVertex3f(0.9,0.9,0.1);
+    glNormal3f(1.0,0.0,0.01);
+    glVertex3f(0.7,0.9,0.01);
+    glVertex3f(0.7,1.1,0.01);
+    glVertex3f(0.9,1.1,0.01);
+    glVertex3f(0.9,0.9,0.01);
 
-    glNormal3f(1.0,0.0,0.1);
-    glVertex3f(1.3,0.9,0.1);
-    glVertex3f(1.3,1.1,0.1);
-    glVertex3f(1.1,1.1,0.1);
-    glVertex3f(1.1,0.9,0.1);
+    glNormal3f(1.0,0.0,0.01);
+    glVertex3f(1.3,0.9,0.01);
+    glVertex3f(1.3,1.1,0.01);
+    glVertex3f(1.1,1.1,0.01);
+    glVertex3f(1.1,0.9,0.01);
     glEnd();
     glBegin(GL_LINES);
         glColor3f(0.0,0.0,0.0);
@@ -362,6 +362,8 @@ void desenha()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+
     glPushMatrix();
     glScalef(7.0,7.0,7.0);
     sala();
@@ -430,8 +432,8 @@ void desenha()
     estante();
     glTranslatef(0.0,0.0,1.0);
     estante();
-    glTranslatef(0.0,0.0,1.0);
-    estante();
+    //glTranslatef(0.0,0.0,1.0);
+    //estante();
     glPopMatrix();
 
     glPushMatrix();
@@ -466,26 +468,65 @@ void desenha()
 
     glPushMatrix();
     glRotatef(90,0.0,1.0,0.0);
-    glTranslatef(-1.0,-7.0,-6.9);
+    glTranslatef(-1.0,-7.0,-6.95);
     porta();
     glPopMatrix();
 
     glutSwapBuffers();
 }
 
+float Distance(float x1, float y1, float x2, float y2)
+{
+    float dx = x2 - x1;
+    float dy = y2 - y1;
+    return sqrt(dx*dx + dy*dy);
+}
+
+
 void teclas_especiais(int key, int x, int y)
 {
     switch(key)
     {
+        //ha uma verificação dos limites das coordenadas.
     case GLUT_KEY_UP:
-        cameraX -=0.2*cos(movementAngle);
-        cameraZ-=0.2*sin(movementAngle);
-        glTranslatef(-0.2*cos(movementAngle),cameraY,-0.2*sin(movementAngle));
+        if(cameraY==0.0)
+        {
+           if((cameraX-0.2*cos(movementAngle)>-6.9)&&(cameraX-0.2*cos(movementAngle)<6.9)&&(cameraZ-0.2*sin(movementAngle)>-6.9)&&(cameraZ-0.2*sin(movementAngle)<6.9))
+            {
+                cameraX -=0.2*cos(movementAngle);
+                cameraZ-=0.2*sin(movementAngle);
+                glTranslatef(-0.2*cos(movementAngle),0.0,-0.2*sin(movementAngle));
+            }
+        }
+        if(cameraY==4.0)
+        {
+            if((cameraX-0.2*cos(movementAngle)>-6.9)&&(cameraX-0.2*cos(movementAngle)<-3.5)&&(cameraZ-0.2*sin(movementAngle)>-4.55)&&(cameraZ-0.2*sin(movementAngle)<6.9))
+            {
+                cameraX -=0.2*cos(movementAngle);
+                cameraZ-=0.2*sin(movementAngle);
+                glTranslatef(-0.2*cos(movementAngle),0.0,-0.2*sin(movementAngle));
+            }
+        }
         break;
     case GLUT_KEY_DOWN:
-        cameraX +=0.2*cos(movementAngle);
-        cameraZ+=0.2*sin(movementAngle);
-        glTranslatef(0.2*cos(movementAngle),cameraY,0.2*sin(movementAngle));
+        if(cameraY==0.0)
+        {
+            if((cameraX+0.2*cos(movementAngle)>-6.9)&&(cameraX+0.2*cos(movementAngle)<6.9)&&(cameraZ+0.2*sin(movementAngle)>-6.9)&&(cameraZ+0.2*sin(movementAngle)<6.9))
+            {
+                cameraX +=0.2*cos(movementAngle);
+                cameraZ+=0.2*sin(movementAngle);
+                glTranslatef(0.2*cos(movementAngle),0.0,0.2*sin(movementAngle));
+            }
+        }
+        if(cameraY==4.0)
+        {
+           if((cameraX+0.2*cos(movementAngle)>-6.9)&&(cameraX+0.2*cos(movementAngle)<-3.5)&&(cameraZ+0.2*sin(movementAngle)>-4.55)&&(cameraZ+0.2*sin(movementAngle)<6.9))
+            {
+                cameraX +=0.2*cos(movementAngle);
+                cameraZ+=0.2*sin(movementAngle);
+                glTranslatef(0.2*cos(movementAngle),0.0,0.2*sin(movementAngle));
+            }
+        }
         break;
     case GLUT_KEY_LEFT:
         angle--;
@@ -510,7 +551,41 @@ void teclas_especiais(int key, int x, int y)
         glTranslatef(cameraX,cameraY,cameraZ);
         movementAngle=2.0*PI*angle/360;
         break;
+    //se estiver proximo da escada, ira subir ou descer.
+    case GLUT_KEY_F1:
+        if(Distance(cameraX,cameraZ,-5,-4.5)<=3.5)
+        {
+            if(cameraY==0.0f)
+            {
+               cameraY=4.0f;
+               glTranslatef(-cameraX,-cameraY,-cameraZ);
+                glRotatef(270-angle,0,1,0);
+                angle=270;
+                movementAngle=2.0*PI*angle/360;
+                glTranslatef(cameraX,cameraY,cameraZ);
+                glTranslatef(-4.8-cameraX,-4.0,-4.2-cameraZ);
+                cameraX=-4.8;
+                cameraZ=-4.2;
+            }
+            else
+            {
+                if(cameraY==4.0f)
+                {
+                    cameraY=0.0f;
+                    glTranslatef(-cameraX,-cameraY,-cameraZ);
+                    glRotatef(270-angle,0,1,0);
+                    angle=270;
+                    movementAngle=2.0*PI*angle/360;
+                    glTranslatef(cameraX,cameraY,cameraZ);
+                    glTranslatef(0,4.0,-6.4-cameraZ);
+                    cameraZ=-6.4;
+                }
+            }
+        }
+        break;
+
     }
+    printf("camerax: %f, cameray: %f, camera z: %f, angulo: %f,distancetostairs: %f\n",cameraX,cameraY,cameraZ,angle,Distance(cameraX,cameraZ,-5,-4.5));
     glutPostRedisplay();
 
 }
