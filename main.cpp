@@ -1,79 +1,61 @@
-
-#include <windows.h>
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#else
 #include <GL/glut.h>
-#endif
+#include <iostream>
 #include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
+#include <soil.h>
+
 #define PI  3.1415926
 #define nl 256
 #define nc 256
+using namespace std;
+
 typedef GLubyte imagem[nl][nc][3];
-GLuint texture;
+GLuint texture[10];
 imagem image;
 
 float rotZ=0,rotY=0,rotX=0, tranZ=0,tranX=0;
 float angle=0.0, movementAngle=0.0f,cameraX=0.0f,cameraY=0.0f,cameraZ=0.0f;
-/*void leimagem(imagem im, char* nome)
-{
-   FILE *f;
-   if ((f = fopen(nome,"rb"))==NULL){
-       printf ("Erro leitura %s!\n(O programa sera fechado)\n",nome);
-       system("pause");
-       exit(0);
-   }
-   fread (im, sizeof(GLubyte),nl*nc*3,f);
-   fclose(f);
-}*/
+float doorAngle=90.0;
+int flag=0;
 
 void dimensionaJanela(int w, int h)
 {
     glViewport(0, 0, w, h);
 
-    }
+}
+int LoadGLTextures(const char *filename, int id)
+{
+    texture[id] = SOIL_load_OGL_texture
+        (
+        filename,
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+		SOIL_FLAG_MIPMAPS | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
+        );
 
-   /* void criaDefineTexturas(void)
-{//-------------------------------------- existe apenas um cubo
-   //Ativa do modo de textura
-   glEnable(GL_TEXTURE_2D);
+    if(texture[id] == 0)
+        return false;
 
-   //Cria o identificador de uma textura
-   glGenTextures(1, &texture); //(Havendo mais de uma textura,'texture' será um vetor)
+    glBindTexture(GL_TEXTURE_2D, texture[id]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-   //Cria um objeto textura associando-o ao identificador
-   glBindTexture(GL_TEXTURE_2D, texture);
+    return true;
+}
 
-   /*Especifica a imagem
-   É bastante prático implementar uma função específica para tanto(como a função
-   a seguir). As imagens aqui estão no formato RAW (sem abeçalho, sem compressão
-   e de um byte por componente)                                               */
-   /*leimagem(image, "books_texture.");
+void IniciarTexturas()
+{
+    LoadGLTextures("madeira.jpg",0);
+    LoadGLTextures("livro.png",1);
+    LoadGLTextures("piso.jpg",2);
+    LoadGLTextures("concreto.jpg",3);
+    LoadGLTextures("wood.jpg",4);
+    LoadGLTextures("big.jpg",5);
 
-   //Especifica parâmetros da textura (ampliação, redução, repetição)
-   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-   /* Finalmente, constroi a textura
-   Nesse caso :                                                               */
-   /*glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,nc,nl,0,GL_RGB,GL_UNSIGNED_BYTE, image);
-   /* Onde:
-   Tipo = GL_TEXTURE_2D , pretende-se criar uma textura 2D,
-   Level = 0 , significa uma única imagem de textura (Podem existir várias
-   texturas para se obter diferentes níveis de detalhe)
-   Internalformat= GL_RGB, descreve a repres. interna da textura (em OpenGL).
-   nc - largura da imagem em pixels
-   nl - altura da imagem em pixels
-   Border=0, indica se desejamos uma borda de 0 ou mais pixels.
-   Format=GL_RGB, correspondem ao formato original da imagem
-   Type= GL_UNSIGNED_BYTE , tipo de dados usados no formato da imagem
-   image - Corresponde ao array de imagem propriamente dito.                  */
-//}
-
+}
 void initGL()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -81,6 +63,7 @@ void initGL()
     glDepthFunc(GL_LEQUAL);
 
     //criaDefineTexturas();
+    IniciarTexturas();
 
     GLfloat luzAmbiente[4]={0.3,0.3,0.3,1.0};
 	GLfloat luzDifusa[4]={0.7,0.7,0.7,1.0};	   // "cor"
@@ -126,27 +109,32 @@ void initGL()
 
 void porta()
 {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 6);
     glBegin(GL_QUADS);
     glNormal3f(1.0,0.0,0.0);
-    glColor3f(0.5,0.35,0.05);
-    glVertex3f(0.0,0.0,0.0);
-    glVertex3f(0.0,2.0,0.0);
-    glVertex3f(2.0,2.0,0.0);
-    glVertex3f(2.0,0.0,0.0);
-
-    glColor3f(1.0,1.0,1.0);
-    glNormal3f(1.0,0.0,0.01);
-    glVertex3f(0.7,0.9,0.01);
-    glVertex3f(0.7,1.1,0.01);
-    glVertex3f(0.9,1.1,0.01);
-    glVertex3f(0.9,0.9,0.01);
-
-    glNormal3f(1.0,0.0,0.01);
-    glVertex3f(1.3,0.9,0.01);
-    glVertex3f(1.3,1.1,0.01);
-    glVertex3f(1.1,1.1,0.01);
-    glVertex3f(1.1,0.9,0.01);
+    glColor3f(1,1,1);
+    glTexCoord2f(0.0,1.0); glVertex3f(0.0,0.0,0.0);
+    glTexCoord2f(0.0,0.0); glVertex3f(0.0,2.0,0.0);
+    glTexCoord2f(1.0,0.0); glVertex3f(2.0,2.0,0.0);
+    glTexCoord2f(1.0,1.0); glVertex3f(2.0,0.0,0.0);
     glEnd();
+    glDisable(GL_TEXTURE_2D);
+
+    /*glBegin(GL_QUADS);
+    glColor3f(1.0,1.0,1.0);
+    glNormal3f(1.0,0.0,0.1);
+    glVertex3f(0.7,0.9,0.1);
+    glVertex3f(0.7,1.1,0.1);
+    glVertex3f(0.9,1.1,0.1);
+    glVertex3f(0.9,0.9,0.1);
+
+    glNormal3f(1.0,0.0,0.1);
+    glVertex3f(1.3,0.9,0.1);
+    glVertex3f(1.3,1.1,0.1);
+    glVertex3f(1.1,1.1,0.1);
+    glVertex3f(1.1,0.9,0.1);
+    glEnd();*/
     glBegin(GL_LINES);
         glColor3f(0.0,0.0,0.0);
        glVertex3f(1.0,0.0,0.0);
@@ -220,110 +208,135 @@ void escada()
 }
 void sala()
 {
-    glColor3f(1.0,0.0,0.0);
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,4);
+    glBegin(GL_QUADS);
+    /* Floor */
+    glColor3f(1.0,1.0,1.0);
+    glNormal3f(0.0,1.0,0.0);
+    glTexCoord2f(0.0,0.0); glVertex3f(-1,-1,-1);
+    glTexCoord2f(1.0,0.0); glVertex3f(-1,-1,1);
+    glTexCoord2f(1.0,1.0); glVertex3f(1,-1,1);
+    glTexCoord2f(0.0,1.0); glVertex3f(1,-1,-1);
+    glEnd();
+
+
+    glBindTexture(GL_TEXTURE_2D,3);
+    glBegin(GL_QUADS);
+    /* Ceiling */
+    glNormal3f(0.0,-1.0,0.0);
+    glColor3f(1.0,1.0,1.0);
+    glTexCoord2f(0.0,0.0); glVertex3f(-1,1,-1);
+    glTexCoord2f(1.0,0.0); glVertex3f(1,1,-1);
+    glTexCoord2f(1.0,1.0); glVertex3f(1,1,1);
+    glTexCoord2f(0.0,1.0); glVertex3f(-1,1,1);
+    glEnd();
 
     glBegin(GL_QUADS);
-/* Floor */
-glNormal3f(0.0,1.0,0.0);
-glVertex3f(-1,-1,-1);
-glVertex3f(-1,-1,1);
-glVertex3f(1,-1,1);
-glVertex3f(1,-1,-1);
-/* Ceiling */
-glNormal3f(0.0,-1.0,0.0);
-glColor3f(0,1.0,0);
-glVertex3f(-1,1,-1);
-glVertex3f(1,1,-1);
-glVertex3f(1,1,1);
-glVertex3f(-1,1,1);
     /* Walls */
-    glColor3f(0.5,0,0.3);
     glNormal3f(0.0,0.0,-1.0);
-glVertex3f(-1,-1,1);
-glVertex3f(1,-1,1);
-glVertex3f(1,1,1);
-glVertex3f(-1,1,1);
+    glColor3f(1.0,1.0,1.0);
+    glTexCoord2f(0.0,0.0); glVertex3f(-1,-1,1);
+    glTexCoord2f(1.0,0.0); glVertex3f(1,-1,1);
+    glTexCoord2f(1.0,1.0); glVertex3f(1,1,1);
+    glTexCoord2f(0.0,1.0); glVertex3f(-1,1,1);
+    glEnd();
 
+    glBegin(GL_QUADS);
+    glNormal3f(0.0,0.0,1.0);
+    glTexCoord2f(0.0,0.0); glVertex3f(-1,-1,-1);
+    glTexCoord2f(1.0,0.0); glVertex3f(1,-1,-1);
+    glTexCoord2f(1.0,1.0); glVertex3f(1,1,-1);
+    glTexCoord2f(0.0,1.0); glVertex3f(-1,1,-1);
+    glEnd();
 
-glNormal3f(0.0,0.0,1.0);
-glVertex3f(-1,-1,-1);
-glVertex3f(1,-1,-1);
-glVertex3f(1,1,-1);
-glVertex3f(-1,1,-1);
+    glBegin(GL_QUADS);
+    glColor3f(0.9,0.8,0.9);
+    glNormal3f(-1.0,0.0,0.0);
+    glTexCoord2f(0.0,0.0); glVertex3f(1,1,1);
+    glTexCoord2f(1.0,0.0); glVertex3f(1,-1,1);
+    glTexCoord2f(1.0,1.0); glVertex3f(1,-1,-1);
+    glTexCoord2f(0.0,1.0); glVertex3f(1,1,-1);
+    glEnd();
 
-glColor3f(0.9,0.8,0.9);
-glNormal3f(-1.0,0.0,0.0);
-glVertex3f(1,1,1);
-glVertex3f(1,-1,1);
-glVertex3f(1,-1,-1);
-glVertex3f(1,1,-1);
+    glBegin(GL_QUADS);
+    glNormal3f(1.0,0.0,0.0);
+    glTexCoord2f(0.0,0.0); glVertex3f(-1,1,1);
+    glTexCoord2f(1.0,0.0); glVertex3f(-1,-1,1);
+    glTexCoord2f(1.0,1.0); glVertex3f(-1,-1,-1);
+    glTexCoord2f(0.0,1.0); glVertex3f(-1,1,-1);
+    glEnd();
 
-glNormal3f(1.0,0.0,0.0);
-glVertex3f(-1,1,1);
-glVertex3f(-1,-1,1);
-glVertex3f(-1,-1,-1);
-glVertex3f(-1,1,-1);
-glEnd();
+    glFlush();
+    glDisable(GL_TEXTURE_2D);
 }
+
 void estante()
 {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture[0]);
     glBegin(GL_QUADS);
     glNormal3f(1.0,0.0,0.0);
     glColor3f(0.5,0.35,0.05);
-    glVertex3f(0.0,0.0,0.0);
-        glVertex3f(0.0,2.0,0.0);
-        glVertex3f(0.5,2.0,0.0);
-        glVertex3f(0.5,0.0,0.0);
+    glColor3f(1.0,1.0,1.0); //AMARELO
+    glTexCoord2f(0.0,0.0); glVertex3f(0.0,0.0,0.0);
+    glTexCoord2f(1.0,0.0); glVertex3f(0.0,2.0,0.0);
+    glTexCoord2f(1.0,1.0); glVertex3f(0.5,2.0,0.0);
+    glTexCoord2f(0.0,1.0); glVertex3f(0.5,0.0,0.0);
 
-    glVertex3f(0.0,0.0,1.0);
-        glVertex3f(0.0,2.0,1.0);
-        glVertex3f(0.5,2.0,1.0);
-        glVertex3f(0.5,0.0,1.0);
+    glColor3f(1.0,1.0,1.0); //BRANCO
+    glTexCoord2f(0.0,0.0); glVertex3f(0.0,0.0,1.0);
+    glTexCoord2f(1.0,0.0); glVertex3f(0.0,2.0,1.0);
+    glTexCoord2f(1.0,1.0); glVertex3f(0.5,2.0,1.0);
+    glTexCoord2f(0.0,1.0); glVertex3f(0.5,0.0,1.0);
 
-    glVertex3f(0.5,0.0,0.0);
-        glVertex3f(0.5,0.0,1.0);
-        glVertex3f(0.5,0.2,1.0);
-        glVertex3f(0.5,0.2,0.0);
+    glColor3f(1.0,1.0,1.0); //VERDE
+    glTexCoord2f(0.0,0.0); glVertex3f(0.5,0.0,0.0);
+    glTexCoord2f(1.0,0.0); glVertex3f(0.5,0.0,1.0);
+    glTexCoord2f(1.0,1.0); glVertex3f(0.5,0.2,1.0);
+    glTexCoord2f(0.0,1.0); glVertex3f(0.5,0.2,0.0);
 
+    glColor3f(1.0,1.0,1.0); //AZUL
+    glTexCoord2f(0.0,0.0); glVertex3f(0.5,0.7,0.0);
+    glTexCoord2f(1.0,0.0); glVertex3f(0.5,0.7,1.0);
+    glTexCoord2f(1.0,1.0); glVertex3f(0.5,0.9,1.0);
+    glTexCoord2f(0.0,1.0); glVertex3f(0.5,0.9,0.0);
 
-    glVertex3f(0.5,0.7,0.0);
-        glVertex3f(0.5,0.7,1.0);
-        glVertex3f(0.5,0.9,1.0);
-        glVertex3f(0.5,0.9,0.0);
+    glColor3f(1.0,1.0,1.0);//CIANO
+    glTexCoord2f(0.0,0.0); glVertex3f(0.5,1.4,0.0);
+    glTexCoord2f(1.0,0.0); glVertex3f(0.5,1.4,1.0);
+    glTexCoord2f(1.0,1.0); glVertex3f(0.5,2.0,1.0);
+    glTexCoord2f(0.0,1.0); glVertex3f(0.5,2.0,0.0);
 
-
-    glVertex3f(0.5,1.4,0.0);
-        glVertex3f(0.5,1.4,1.0);
-        glVertex3f(0.5,2.0,1.0);
-        glVertex3f(0.5,2.0,0.0);
-
+    glColor3f(1.0,1.0,1.0);//ROXO
     glNormal3f(0.0,1.0,0.0);
-    glVertex3f(0.0,2.0,0.0);
-        glVertex3f(0.0,2.0,1.0);
-        glVertex3f(0.5,2.0,1.0);
-        glVertex3f(0.5,2.0,0.0);
+    glTexCoord2f(0.0,0.0); glVertex3f(0.0,2.0,0.0);
+    glTexCoord2f(1.0,0.0); glVertex3f(0.0,2.0,1.0);
+    glTexCoord2f(1.0,1.0); glVertex3f(0.5,2.0,1.0);
+    glTexCoord2f(0.0,1.0); glVertex3f(0.5,2.0,0.0);
+    glEnd();
 
-        glColor3f(0.0,0.0,0.0);
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glBegin(GL_QUADS);
+        glColor3f(1.0,1.0,1.0);
         glNormal3f(1.0,0.0,0.0);
 
-        //glTexCoord2f(0.0,0.0);
-        glVertex3f(0.5,0.2,0.0);
-      //  glTexCoord2f(0.0,1.0);
-        glVertex3f(0.5,0.2,1.0);
-        //glTexCoord2f(1.0,1.0);
-        glVertex3f(0.5,0.7,1.0);
-        //glTexCoord2f(1.0,0.0);
-        glVertex3f(0.5,0.7,0.0); //livros
+        glTexCoord2f(0.0,0.0); glVertex3f(0.5,0.2,0.0);
+        glTexCoord2f(1.0,0.0); glVertex3f(0.5,0.2,1.0);
+        glTexCoord2f(1.0,1.0); glVertex3f(0.5,0.7,1.0);
+        glTexCoord2f(0.0,1.0); glVertex3f(0.5,0.7,0.0); //livros
 
-        //glTexCoord2f(0.0,0.0);
-        glVertex3f(0.5,0.9,0.0);
-        //glTexCoord2f(0.0,1.0);
-        glVertex3f(0.5,0.9,1.0);
-        //glTexCoord2f(1.0,1.0);
-        glVertex3f(0.5,1.4,1.0);
-        //glTexCoord2f(1.0,0.0);
-        glVertex3f(0.5,1.4,0.0); //livros
+        glTexCoord2f(0.0,0.0); glVertex3f(0.5,0.9,0.0);
+        glTexCoord2f(1.0,0.0); glVertex3f(0.5,0.9,1.0);
+        glTexCoord2f(1.0,1.0); glVertex3f(0.5,1.4,1.0);
+        glTexCoord2f(0.0,1.0); glVertex3f(0.5,1.4,0.0); //livros
     glEnd();
+
+
+    glFlush();
+
+    glDisable(GL_TEXTURE_2D);
 }
 void andar()
 {
@@ -381,56 +394,56 @@ void desenha()
     glPushMatrix();
     glRotated(180,0.0,1.0,0.0);
     glTranslatef(-6.9,-7.0,5.5);
+
+    glTranslatef(0.1,0.0,-1.02);
     estante();
-    glTranslatef(0,0.0,-1.0);
+    glTranslatef(0,0.0,-1.02);
     estante();
-    glTranslatef(0,0.0,-1.0);
+    glTranslatef(0,0.0,-1.02);
     estante();
-    glTranslatef(0,0.0,-1.0);
+    glTranslatef(0,0.0,-1.02);
     estante();
-    glTranslatef(0,0.0,-1.0);
+    glTranslatef(0,0.0,-1.02);
     estante();
-    glTranslatef(0,0.0,-1.0);
+    glTranslatef(0,0.0,-1.02);
     estante();
-    glTranslatef(0,0.0,-1.0);
+    glTranslatef(0,0.0,-1.02);
     estante();
-    glTranslatef(0,0.0,-1.0);
+    glTranslatef(0,0.0,-1.02);
     estante();
-    glTranslatef(0,0.0,-1.0);
+    glTranslatef(0,0.0,-1.02);
     estante();
-    glTranslatef(0,0.0,-1.0);
+    glTranslatef(0,0.0,-1.02);
     estante();
-    glTranslatef(0,0.0,-1.0);
+    glTranslatef(0,0.0,-1.02);
     estante();
-    glTranslatef(0,0.0,-1.0);
-    estante();
-    glTranslatef(0,0.0,-1.0);
+    glTranslatef(0,0.0,-1.02);
     estante();
     glPopMatrix();
 
     glPushMatrix();
     glRotated(90,0.0,1.0,0.0);
-    glTranslatef(-6.9,-7.0,-7.0);
+    glTranslatef(-6.9,-7.0,-6.8);
     estante();
-    glTranslatef(0.0,0.0,1.0);
+    glTranslatef(0.0,0.0,1.02);
     estante();
-    glTranslatef(0.0,0.0,1.0);
+    glTranslatef(0.0,0.0,1.03);
     estante();
-    glTranslatef(0.0,0.0,1.0);
+    glTranslatef(0.0,0.0,1.03);
     estante();
-    glTranslatef(0.0,0.0,1.0);
+    glTranslatef(0.0,0.0,1.03);
     estante();
-    glTranslatef(0.0,0.0,1.0);
+    glTranslatef(0.0,0.0,1.03);
     estante();
-    glTranslatef(0.0,0.0,1.0);
+    glTranslatef(0.0,0.0,1.03);
     estante();
-    glTranslatef(0.0,0.0,1.0);
+    glTranslatef(0.0,0.0,1.03);
     estante();
-    glTranslatef(0.0,0.0,1.0);
+    glTranslatef(0.0,0.0,1.03);
     estante();
-    glTranslatef(0.0,0.0,1.0);
+    glTranslatef(0.0,0.0,1.03);
     estante();
-    glTranslatef(0.0,0.0,1.0);
+    glTranslatef(0.0,0.0,1.03);
     estante();
     //glTranslatef(0.0,0.0,1.0);
     //estante();
@@ -466,9 +479,11 @@ void desenha()
     estante();
     glPopMatrix();
 
+
+
     glPushMatrix();
     glRotatef(90,0.0,1.0,0.0);
-    glTranslatef(-1.0,-7.0,-6.95);
+    glTranslatef(-1.0,-6.95,-6.7);
     porta();
     glPopMatrix();
 
@@ -557,8 +572,8 @@ void teclas_especiais(int key, int x, int y)
         {
             if(cameraY==0.0f)
             {
-               cameraY=4.0f;
-               glTranslatef(-cameraX,-cameraY,-cameraZ);
+                cameraY=4.0f;
+                glTranslatef(-cameraX,-cameraY,-cameraZ);
                 glRotatef(270-angle,0,1,0);
                 angle=270;
                 movementAngle=2.0*PI*angle/360;
@@ -583,7 +598,10 @@ void teclas_especiais(int key, int x, int y)
             }
         }
         break;
-
+    case GLUT_KEY_F2:
+        if(flag == 0) {doorAngle = 0; flag=1;}
+        else {doorAngle = -90; flag=0;}
+        break;
     }
     printf("camerax: %f, cameray: %f, camera z: %f, angulo: %f,distancetostairs: %f\n",cameraX,cameraY,cameraZ,angle,Distance(cameraX,cameraZ,-5,-4.5));
     glutPostRedisplay();
