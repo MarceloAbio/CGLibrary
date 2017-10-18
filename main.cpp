@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <math.h>
-#include <soil.h>
+#include <SOIL.h>
 
 #define PI  3.1415926
 #define nl 256
@@ -599,11 +599,11 @@ void teclas_especiais(int key, int x, int y)
         }
         break;
     case GLUT_KEY_F2:
-        if(flag == 0) {doorAngle = 0; flag=1;}
-        else {doorAngle = -90; flag=0;}
+        if(flag == 0) {glDisable(GL_LIGHT0); flag=1;}
+        else {glEnable(GL_LIGHT0); flag = 0;}
         break;
     }
-    printf("camerax: %f, cameray: %f, camera z: %f, angulo: %f,distancetostairs: %f\n",cameraX,cameraY,cameraZ,angle,Distance(cameraX,cameraZ,-5,-4.5));
+    //printf("camerax: %f, cameray: %f, camera z: %f, angulo: %f,distancetostairs: %f\n",cameraX,cameraY,cameraZ,angle,Distance(cameraX,cameraZ,-5,-4.5));
     glutPostRedisplay();
 
 }

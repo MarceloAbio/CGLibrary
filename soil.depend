@@ -1,0 +1,27 @@
+# depslib dependency file v1.0
+1508269865 source:c:\users\victor\worskspace\soil\main.cpp
+	<GL/glut.h>
+	<iostream>
+	<math.h>
+	<soil.h>
+
+1215465208 c:\users\victor\worskspace\library\simple opengl image library\src\soil.h
+
+1508311640 source:c:\users\joaov\onedrive\documents\cg\soil\main.cpp
+	<GL/glut.h>
+	<iostream>
+	<stdio.h>
+	<math.h>
+	<soil.h>
+
+1215465208 c:\users\joaov\onedrive\documents\cg\library\simple opengl image library\src\soil.h
+
+1508346385 source:c:\users\victor\onedrive\documents\cg\soil\main.cpp
+	<GL/glut.h>
+	<iostream>
+	<stdio.h>
+	<math.h>
+	<SOIL.h>
+
+1215465208 c:\users\victor\onedrive\documents\cg\library\soil\src\soil.h
+
